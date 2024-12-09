@@ -137,13 +137,33 @@ final_results <- read.csv(file = params$final_results, header = TRUE)
 
 cols <- c("gene", "nsnp", "b_Inverse_variance_weighted", "pval_Inverse_variance_weighted", "gsmr_beta", "gsmr_pval", "causal_snp")
 final_results <- final_results[final_results$is_candidate == TRUE, cols]
+colnames(final_results)[3:4] <- c("b_IVW", "pval_IVW")
 
 datatable(final_results, options = list(
         scrollX = TRUE,
         scrollY = "300px",
-        paging = FALSE))
+        paging = FALSE),
+        callback = JS(
+            "
+            table.on('click', 'tr', function() {
+            var data = table.row(this).data();
+            if (data) {
+                // Construct the image path dynamically
+                var imgPath = '../coloc/' + data[1] + '_regional.png';
+                // Update the image source in the viewer
+                document.getElementById('image-display').src = imgPath;
+            }
+            });
+            "
+                    )
+        )
 ```
 
+<div style="text-align: center; margin-top: 20px;">
+  <img id="image-display" src=""
+       alt="Click a gene to display its regional image" 
+       style="max-width: 100%; height: auto; border: 1px solid #ddd; padding: 5px;" />
+</div>
 
 <!-- Subsection on nextflow and pipeline information -->
 
