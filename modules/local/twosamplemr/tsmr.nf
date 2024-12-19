@@ -13,11 +13,13 @@ process TWOSAMPLEMR {
     path(reference)
 
   output:
-    path("*md")              , emit: report
-    path("*csv")             , emit: data
-    path("figure")           , emit: figures
-    path("*png")             , emit: effplot
-    path("*mrpresso*")       , emit: mrpresso
+    path("*pleiotropy.txt")              , emit: pleiotropy
+    path("*metrics.txt")                 , emit: metrics
+    path("*heterogeneity.txt")           , emit: heterogeneity
+    path("*steiger.txt")                 , emit: steiger
+    path("*rsquare.txt")                 , emit: rsquare
+    path("*png")                         , emit: effplot
+    path("*mrpresso.txt")                , emit: mrpresso
   
   when:
     task.ext.when == null || task.ext.when

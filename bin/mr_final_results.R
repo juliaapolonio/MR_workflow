@@ -16,24 +16,18 @@ tsmr_mrpresso_path <- args[7]
 # Load data
 coloc <- vroom(coloc_path, col_names = c("gene", "H3", "H4", "causal_snp"))
 gsmr <- vroom(gsmr_path, col_names = c("gene", "outcome","gsmr_beta", "gsmr_se", "gsmr_pval", "gsmr_nsnp", "heidi_out", "gsmr_padj"))
-tsmr_hetero <- vroom(tsmr_hetero_path, delim=',', col_names = c("method", "Q", "Q_df", "Q_pval", "gene"))
-tsmr_steiger <- vroom(tsmr_steiger_path, delim=',', col_names = c("r2_exposure", "r2_oucome", "correct_dir", "steiger_pval", "gene"))
-tsmr_pleiotropy <- vroom(tsmr_pleiotropy_path, delim=',', col_names = c("pleiotropy_egger_intercept", "pleiotropy_se", "pleiotropy_pval", "method"))
-tsmr_metrics <- vroom(tsmr_metrics_path, delim=',', col_names = c("method", "nsnp", "b", "se", "pval", "gene"))
+tsmr_hetero <- vroom(tsmr_hetero_path, col_names = c("gene", "method", "Q", "Q_df", "Q_pval"))
+tsmr_steiger <- vroom(tsmr_steiger_path, col_names = c("gene", "snp_r.exposure", "snp_r2.outcome", "correct_causal_direction", "steiger_pval"))
+tsmr_pleiotropy <- vroom(tsmr_pleiotropy_path, col_names = c("gene", "egger_intercept", "se", "pleiotropy_pval"))
+tsmr_metrics <- vroom(tsmr_metrics_path, col_names = c("gene", "method", "nsnp", "b", "se", "pval"))
 tsmr_mrpresso <- vroom(tsmr_mrpresso_path, col_names = c("gene", "mrpresso_pval"))
 
 #Split method columns
-tsmr_metrics <- tidyr::separate(data = tsmr_metrics, col = "gene", into = c("gene", "analysis"))
-tsmr_steiger <- tidyr::separate(data = tsmr_steiger, col = "gene", into = c("gene", "analysis"))
-tsmr_hetero <- tidyr::separate(data = tsmr_hetero, col = "gene", into = c("gene", "analysis"))
-tsmr_pleiotropy <- tidyr::separate(data = tsmr_pleiotropy, col = "method", into = c("gene", "analysis"))
 coloc$gene <- stringr::str_remove(coloc$gene, "\\_coloc_input")
 
 tsmr_mrpresso$gene <- sub("_.*", "", tsmr_mrpresso$gene)
 coloc$gene <- sub("_.*", "", coloc$gene)
 
-tsmr_metrics$method <- gsub("\\s+", "_", tsmr_metrics$method)
-tsmr_hetero$method <- gsub("\\s+", "_", tsmr_hetero$method)
 
 # Spread dataframes
 wide_hetero <- pivot_wider(tsmr_hetero, names_from = "method", values_from = c("Q", "Q_df", "Q_pval"))
@@ -61,7 +55,7 @@ results_mr <- gsmr %>%
 	is_candidate <- results_mr %>%
 	  filter(!(`Q_pval_MR_Egger` <= 0.05) & !(`Q_pval_Inverse_variance_weighted` <= 0.05))%>%
 	  filter(nsnp >= 3) %>%
-	    filter(steiger_pval == 0) %>%
+	    filter(steiger_pval < 0.05) %>%
 	    filter(H4 > 0.8) %>%
 	  filter(mrpresso_pval > 0.05) %>%
 	      filter(pleiotropy_pval > 0.05) %>%

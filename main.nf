@@ -160,46 +160,31 @@ workflow {
     TWOSAMPLEMR.out.mrpresso
         .collectFile(name: 'concatenated_mrpresso.txt', storeDir: "${params.outdir}/collected_files/")
         .set { concatenated_mrpresso }
+    
+    TWOSAMPLEMR.out.metrics
+        .collectFile(name: 'concatenated_metrics.txt', storeDir: "${params.outdir}/collected_files/")
+        .set { concatenated_metrics }
 
-    PARSE_2SMR (
-	    TWOSAMPLEMR.out.report
-	    )
+    TWOSAMPLEMR.out.steiger
+        .collectFile(name: 'concatenated_steiger.txt', storeDir: "${params.outdir}/collected_files/")
+        .set { concatenated_steiger }
 
-    ADD_H_COLUMN (
-	    PARSE_2SMR.out.results_heterogeneity,
-    )
-    ADD_H_COLUMN.out.formatted_report
-        .collectFile(name: 'concatenated_h.csv', skip: 1, storeDir: "${params.outdir}/collected_files/")
-        .set { concatenated_h }
+    TWOSAMPLEMR.out.heterogeneity
+        .collectFile(name: 'concatenated_heterogeneity.txt', storeDir: "${params.outdir}/collected_files/")
+        .set { concatenated_heterogeneity }
 
-    ADD_S_COLUMN (
-	    PARSE_2SMR.out.results_steiger,
-    )
-    ADD_S_COLUMN.out.formatted_report
-        .collectFile(name: 'concatenated_s.csv', skip: 1, storeDir: "${params.outdir}/collected_files/")
-        .set { concatenated_s }
+    TWOSAMPLEMR.out.pleiotropy
+        .collectFile(name: 'concatenated_pleiotropy.txt', storeDir: "${params.outdir}/collected_files/")
+        .set { concatenated_pleiotropy }
 
-    ADD_P_COLUMN (
-	    PARSE_2SMR.out.results_pleiotropy,
-    )
-    ADD_P_COLUMN.out.formatted_report
-        .collectFile(name: 'concatenated_p.csv', skip: 1, storeDir: "${params.outdir}/collected_files/")
-        .set { concatenated_p }
-
-    ADD_M_COLUMN (
-	    PARSE_2SMR.out.results_metrics,
-    )
-    ADD_M_COLUMN.out.formatted_report
-        .collectFile(name: 'concatenated_m.csv', skip: 1, storeDir: "${params.outdir}/collected_files/")
-        .set { concatenated_m }
 
     RESULT (
 	    concatenated_coloc,
             GSMR_FILTER.out.filtered_genes,
-            concatenated_h,
-            concatenated_s,
-            concatenated_p,
-            concatenated_m,
+            concatenated_heterogeneity,
+            concatenated_steiger,
+            concatenated_pleiotropy,
+            concatenated_metrics,
             concatenated_mrpresso
     )
 
